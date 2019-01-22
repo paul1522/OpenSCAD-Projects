@@ -1,17 +1,17 @@
-// Raspberry Pi Model B Enclosure Library
-
 /*
-Board: 85 x 54 x 1.5
+Raspberry Pi Model B Enclosure Library
+
+Board: 85 x 56 x 1.5
 Right:
 	RJ45: 15.9 x 13.6 @ 2, 1.5
-	USB: 13.3 x 15.4 @ 20, 1.5
+	USB: 13.3 x 15.4 @ 23.9, 1.5
 Left:
-	SD Card Slot:  28.3 x 4, @ 12, -4
+	SD Card Slot:  27.8 x 4, @ 11.5, -4
 	Micro USB: 8.1 x 3.2 @ 42.7 , 1.5
 Front:
-	HDMI: 15.1 x 5.9 @ 36.8, 1.5
+	HDMI: 15.1 x 6.2 @ 37.5, 1.5
 Back:
-	Audio Jack: 6.6 @ 20.6, 8.5
+	Audio Jack: 6.6 @ 20, 8.5
 	Composite Video: 8.4 @ 38, 7
 */
 
@@ -19,31 +19,31 @@ Back:
 include <lib_enclosure.scad>
 
 // variables
+function tolerance()        = 0.8;
+function device_x()         = 85;
+function device_y()         = 56;
+function pcb_z()            = 1.5;
 function fillet_z()         = 0;
-function tolerance()        = 0.25;
-function device_x()         = 85.6;
-function device_y()         = 54.0;
-function pcb_z()            = 1.4;
 function spacing()          = 10.0;
 function riser_z()          = 4.0;
-function riser_thickness()  = 1.2;
-function wall_thickness()   = 2;
+function riser_thickness()  = 0;
+function wall_thickness()   = 2.4;
 function bottom_thickness() = 1;
 function top_thickness()    = 1;
-function device_z()         = pcb_z() + 15.3;
+function device_z()         = pcb_z() + 15.4; // The thickness of the pcb + height of the tallest component (USB Port)
 function friction()         = wall_thickness();
-function split()            = outer_z() / 2;
+function split()            = 0.55;
 
 module right_cutouts(is_bottom) {
-	square_cutout([2.0+15.9/2,       pcb_z()+13.6/2], [15.9, 13.6]); // rj45 (15.9x13 @ 2x1.4)
-	square_cutout([20+13.3/2, pcb_z()+15.4/2], [13.3, 15.4]); // usb
+	square_cutout([2.0+15.9/2, pcb_z()+13.6/2], [15.9, 13.6]); // rj45 (15.9x13 @ 2x1.4)
+	square_cutout([23.9+13.3/2, pcb_z()+15.4/2], [13.3, 15.4]); // usb
 
 	extra_right_cutouts(is_bottom);
 }
 
 module left_cutouts(is_bottom) {
-	square_cutout([12+28.3/2,  -4/2],        [28.3,     4]);   // sd card
-	square_cutout([42.7+8.1/2, pcb_z()+3.2/2], [8.1,   3.2]); // power
+	square_cutout([13.5+25.3/2,  -4/2], [25.3, 4]);   // sd card
+	square_cutout([44.7+8.1/2, pcb_z()+3.2/2], [8.1, 3.2]); // power
 
 	extra_left_cutouts(is_bottom);
 }
@@ -51,44 +51,22 @@ module left_cutouts(is_bottom) {
 module front_cutouts(is_bottom) {
 	square_cutout([36.8+15.1/2, pcb_z()+5.9/2], [15.1, 5.9]); // hdmi
 
-	if (is_bottom) {
-		square_cutout([36.8+15.1/2, pcb_z()+device_z()/2], [15.1, device_z()]); // hdmi
-	}
-
 	extra_front_cutouts(is_bottom);
 }
 
 module back_cutouts(is_bottom) {
-	circle_cutout([20.6, pcb_z()+8.5], 6.6/2); // audio
-	circle_cutout([38, pcb_z()+7],     8.4/2); // video
-	//circle_cutout([85.0-40.6-9.8/2-1.0, pcb_z()+6.5],       8.3/2+1); // video (is this for the older b?)
-	//translate([50.80,          4], [33.20,          20.00]); // gpio header
-	//translate([46.00,          4], [            50.00,          20.00]); // gpio ribbon
-	//translate([50.80,          4], [ 33.2, 10]); // little gpio ribbon
+	circle_cutout([20, pcb_z()+7.5], 6.6/2); // audio
+	circle_cutout([39, pcb_z()+9], 8.4/2); // video
 
-	if (is_bottom) {
-		//square_cutout([14.0+12.0/2,         pcb_z()+3.0+6.7/2+device_z()/2+0.5], [6.7+2, device_z()]); // audio
-		//square_cutout([85.0-40.6-9.8/2-1.0, pcb_z()+4.0+8.3/2+device_z()/2],     [8.3+2, device_z()]); // video
-		//square_cutout([85.0-40.6-9.8/2-1.0, pcb_z()+6.5-8.3/2], [8.3+2, 8.3+2]); // video (is this for the older b?)
-	} else {
-		//square_cutout([14.0+12.0/2,         pcb_z()+3.0+6.7/2+0.5-device_z()/2], [6.7+2, device_z()]); // audio
-		//square_cutout([85.0-40.6-9.8/2-1.0, pcb_z()+4.0+8.3/2-device_z()/2],     [8.3+2, device_z()]); // video
-		//square_cutout([85.0-40.6-9.8/2-1.0, pcb_z()+6.5-8.3/2], [8.3+2, 8.3+2]); // video (is this for the older b?)
+	if (!is_bottom) {
+		square_cutout([20, pcb_z()+7.5-6.6/2], [6.6, 6.6]); // audio
+		square_cutout([39, pcb_z()+9-8.4/2], [8.4, 8.4]); // video
 	}
 
 	extra_back_cutouts(is_bottom);
 }
 
 module top_cutouts() {
-	//translate([                        19.00,           71.00], [              18.00,             1.50]); // dsi
-	//translate([                         2.00,           25.00], [              18.00,             1.50]); // csi
-	//translate([                  2,    -1], [   15.4, 21.2]); // rj45 (for super short enclosures)
-	//square_cutout([device_y-18.8-13.25,  -7.7], [  13.25, 17.2]); // usb (for super short enclosures)
-	//translate([      device_y-11.4,    14], [ 11.4+4,   12]); // audio (for super short enclosures)
-	//translate([    device_y-2.1-10,    34], [ 10+2.1,   10]); // video (for super short enclosures)
-	//translate([              49.00, 50.80], [5.5+1.5, 33.2]); // gpio header
-	//translate([              49.00, 46.00], [5.5+1.5,               50]); // gpio ribbon
-
 	extra_top_cutouts();
 }
 
@@ -97,10 +75,6 @@ module bottom_cutouts() {
 }
 
 module cutouts(is_bottom) {
-	// Cut away the riser adjacent to the SD card bracket.
-	translate([wall_thickness(), wall_thickness()+riser_thickness(), bottom_thickness()])
-	    cube([riser_thickness()+0.0001, inner_y()-2*riser_thickness(), triser_z()+0.001]);
-
 	extra_cutouts(is_bottom);
 }
 
