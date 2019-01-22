@@ -84,42 +84,42 @@ module _cutouts(is_bottom) {
 module _right_cutouts(is_bottom) {
 	translate([0.001, 0, 0])
 		right_face()
-			linear_extrude(wall_thickness()+riser_thickness()+tolerance())
+			linear_extrude(wall_thickness()+riser_thickness()+tolerance()+0.002)
 				right_cutouts(is_bottom);
 }
 
 module _left_cutouts(is_bottom) {
 	translate([-0.001, 0, 0])
 		left_face()
-			linear_extrude(wall_thickness()+riser_thickness()+tolerance())
+			linear_extrude(wall_thickness()+riser_thickness()+tolerance()+0.002)
 				left_cutouts(is_bottom);
 }
 
 module _front_cutouts(is_bottom) {
 	translate([0, -0.001, 0])
 		front_face()
-			linear_extrude(wall_thickness()+riser_thickness()+tolerance())
+			linear_extrude(wall_thickness()+riser_thickness()+tolerance()+0.002)
 				front_cutouts(is_bottom);
 }
 
 module _back_cutouts(is_bottom) {
 	translate([0, 0.001, 0])
 		back_face()
-			linear_extrude(wall_thickness()+riser_thickness()+tolerance())
+			linear_extrude(wall_thickness()+riser_thickness()+tolerance()+0.002)
 				back_cutouts(is_bottom);
 }
 
 module _top_cutouts() {
 	translate([0, 0, 0.001])
 		top_face()
-			linear_extrude(wall_thickness()+tolerance())
+			linear_extrude(top_thickness()+tolerance()+0.002)
 				top_cutouts();
 }
 
 module _bottom_cutouts() {
 	translate([0, 0, -0.001])
 		bottom_face()
-			linear_extrude(wall_thickness()+triser_z()+tolerance())
+			linear_extrude(bottom_thickness()+triser_z()+tolerance()+0.002)
 				bottom_cutouts();
 }
 
@@ -127,7 +127,7 @@ module _risers() {
 	if (riser_z() > 0 && riser_thickness() > 0) {
 		translate([wall_thickness(), wall_thickness(), bottom_thickness()]) {
 			difference() {
-				softz_cube([inner_x(), inner_y(), triser_z()], cr=fillet_z()+tolerance());
+				softz_cube([inner_x(), inner_y(), triser_z()], cr=fillet_z());
 				translate([riser_thickness(), riser_thickness(), 0]) {
 					cr2 = fillet_z()+tolerance() > riser_thickness() ? fillet_z()+tolerance()-riser_thickness() : 0;
 					softz_cube([inner_x()-2*riser_thickness(), inner_y()-2*riser_thickness(), triser_z()+0.001], cr=cr2);
@@ -284,18 +284,20 @@ module stand_on(pos, outer_r, inner_r=0) {
 	}
 }
 
-module square_cutout(pos, size, center=true) {
+module square_cutout(pos, size, center=true, zero_tolerance=false) {
+    t = zero_tolerance ? 0 : tolerance();
 	if (center == true) {
-		translate([pos[0]-size[0]/2-tolerance(), pos[1]-size[1]/2-tolerance(), 0])
-			square([size[0]+2*tolerance(), size[1]+2*tolerance()]);
+		translate([pos[0]-size[0]/2-t, pos[1]-size[1]/2-t, 0])
+			square([size[0]+2*t, size[1]+2*t]);
 	} else {
-		translate([pos[0]-tolerance(), pos[1]-tolerance(), 0])
-			square([size[0]+2*tolerance(), size[1]+2*tolerance()]);
+		translate([pos[0]-t, pos[1]-t, 0])
+			square([size[0]+2*t, size[1]+2*t]);
 	}
 }
 
-module circle_cutout(pos, size) {
-	translate([pos[0], pos[1], 0]) circle(size+tolerance());
+module circle_cutout(pos, size, zero_tolerance=false) {
+    t = zero_tolerance ? 0 : tolerance();
+	translate([pos[0], pos[1], 0]) circle(size+t);
 }
 
 module rubber_band_x(w, t, y) {
